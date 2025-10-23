@@ -25,8 +25,6 @@ android {
 }
 
 dependencies {
-    implementation("com.google.android.gms:play-services-tasks:18.0.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
     implementation(project(":common"))
     implementation(project(":domain"))
 
@@ -37,6 +35,9 @@ dependencies {
 
     // ML Kit dependencies
     implementation(libs.mlkit.face.detection)
+    implementation("com.google.android.gms:play-services-tasks:18.0.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
+
     implementation(libs.tensorflow.lite)
     implementation(libs.tensorflow.lite.support)
 

@@ -11,29 +11,28 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
-    
+
     @Binds
     @Singleton
     abstract fun bindPersonRepository(
         impl: PersonRepositoryImpl
     ): PersonRepository
-    
+
     @Binds
     @Singleton
     abstract fun bindPhotoRepository(
         impl: PhotoRepositoryImpl
     ): PhotoRepository
-    
-    // TODO: Add bindings for other repositories
-    // @Binds
-    // @Singleton
-    // abstract fun bindFaceRepository(impl: FaceRepositoryImpl): FaceRepository
-    
-    // @Binds
-    // @Singleton
-    // abstract fun bindSuggestionRepository(impl: SuggestionRepositoryImpl): SuggestionRepository
-    
-    // @Binds
-    // @Singleton
-    // abstract fun bindSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindFaceRepository(
+        impl: FaceRepositoryImpl
+    ): FaceRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSuggestionRepository(
+        impl: SuggestionRepositoryImpl
+    ): SuggestionRepository
 }
