@@ -22,11 +22,16 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+
+    ksp {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
 }
 
 dependencies {
     implementation(project(":common"))
     implementation(project(":domain"))
+    implementation(project(":ml"))
     
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.core)

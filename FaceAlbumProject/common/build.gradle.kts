@@ -25,14 +25,17 @@ android {
 }
 
 dependencies {
+    // Kotlin & Coroutines
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.core.ktx)
-    
+
+    // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-    
+
+    // Testing
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.truth)

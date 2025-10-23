@@ -14,14 +14,13 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "face-albums"
+rootProject.name = "face-album"
 
 include(
     ":app",
     ":common",
     ":data",
     ":domain",
-    ":di",
     ":ml",
     ":media",
     ":work"
