@@ -29,20 +29,23 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":media"))
     implementation(project(":ml"))
-    
+
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.core.ktx)
-    
+
     // WorkManager
     implementation(libs.work.runtime.ktx)
-    implementation(libs.work.hilt)
-    ksp(libs.work.hilt.compiler)
-    
+
+    // Hilt + WorkManager
+    implementation(libs.androidx.hilt.work)
+    ksp(libs.androidx.hilt.compiler)
+
+    // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-    
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.truth)
