@@ -14,12 +14,15 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "FaceAlbumProject"
+rootProject.name = "face-albums"
 
-include(":app")
-include(":domain")
-include(":data")
-include(":ml")
-include(":media")
-include(":work")
-include(":common")
+include(
+    ":app",
+    ":common",
+    ":data",
+    ":domain",
+    ":di",
+    ":ml",
+    ":media",
+    ":work"
+)
