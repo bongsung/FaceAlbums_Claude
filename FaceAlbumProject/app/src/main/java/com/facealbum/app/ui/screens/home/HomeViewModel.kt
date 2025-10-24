@@ -11,7 +11,6 @@ import com.facealbum.domain.repository.PhotoRepository
 import com.facealbum.domain.repository.SettingsRepository
 import com.facealbum.domain.repository.SuggestionRepository
 import com.facealbum.domain.usecase.*
-import com.facealbum.work.FolderScanWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

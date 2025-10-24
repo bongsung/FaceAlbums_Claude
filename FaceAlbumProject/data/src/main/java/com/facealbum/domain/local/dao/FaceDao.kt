@@ -1,7 +1,7 @@
-package com.facealbum.data.local.dao
+package com.facealbum.domain.local.dao
 
 import androidx.room.*
-import com.facealbum.data.local.entity.FaceEntity
+import com.facealbum.domain.local.entity.FaceEntity
 
 @Dao
 interface FaceDao {

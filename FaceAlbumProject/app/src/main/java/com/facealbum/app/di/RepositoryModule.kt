@@ -1,6 +1,5 @@
 package com.facealbum.app.di
 
-import com.facealbum.data.repository.*
 import com.facealbum.domain.repository.*
 import dagger.Binds
 import dagger.Module
@@ -35,4 +34,11 @@ abstract class RepositoryModule {
     abstract fun bindSuggestionRepository(
         impl: SuggestionRepositoryImpl
     ): SuggestionRepository
+
+    // 이 부분을 추가!
+    @Binds
+    @Singleton
+    abstract fun bindSettingsRepository(
+        impl: SettingsRepositoryImpl
+    ): SettingsRepository
 }

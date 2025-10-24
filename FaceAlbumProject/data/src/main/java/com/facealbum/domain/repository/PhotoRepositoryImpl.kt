@@ -1,13 +1,12 @@
-package com.facealbum.data.repository
+package com.facealbum.domain.repository
 
 import com.facealbum.common.Result
-import com.facealbum.data.local.dao.FaceDao
-import com.facealbum.data.local.dao.PhotoDao
-import com.facealbum.data.local.entity.toDomain
-import com.facealbum.data.local.entity.toEntity
+import com.facealbum.domain.local.dao.FaceDao
+import com.facealbum.domain.local.dao.PhotoDao
+import com.facealbum.domain.local.entity.toDomain
+import com.facealbum.domain.local.entity.toEntity
 import com.facealbum.domain.model.Face
 import com.facealbum.domain.model.Photo
-import com.facealbum.domain.repository.PhotoRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

@@ -1,9 +1,9 @@
-package com.facealbum.data.local.dao
+package com.facealbum.domain.local.dao
 
 import androidx.room.*
-import com.facealbum.data.local.entity.LinkPersonPhotoEntity
-import com.facealbum.data.local.entity.PersonEntity
-import com.facealbum.data.local.entity.PhotoEntity
+import com.facealbum.domain.local.entity.LinkPersonPhotoEntity
+import com.facealbum.domain.local.entity.PersonEntity
+import com.facealbum.domain.local.entity.PhotoEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

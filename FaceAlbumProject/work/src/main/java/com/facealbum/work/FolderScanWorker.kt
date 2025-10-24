@@ -6,7 +6,6 @@ import android.net.Uri
 import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
-import com.facealbum.common.Constants
 import com.facealbum.domain.model.Face
 import com.facealbum.domain.repository.FaceRepository
 import com.facealbum.domain.repository.PhotoRepository

@@ -1,14 +1,12 @@
-package com.facealbum.data.repository
+package com.facealbum.domain.repository
 
 import com.facealbum.common.Result
-import com.facealbum.data.local.dao.PersonDao
-import com.facealbum.data.local.dao.SuggestionDao
-import com.facealbum.data.local.entity.LinkPersonPhotoEntity
-import com.facealbum.data.local.entity.PendingSuggestionEntity
-import com.facealbum.data.local.entity.toDomain
+import com.facealbum.domain.local.dao.PersonDao
+import com.facealbum.domain.local.dao.SuggestionDao
+import com.facealbum.domain.local.entity.PendingSuggestionEntity
+import com.facealbum.domain.local.entity.toDomain
 import com.facealbum.domain.model.PendingSuggestion
 import com.facealbum.domain.model.SuggestionStatus
-import com.facealbum.domain.repository.SuggestionRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

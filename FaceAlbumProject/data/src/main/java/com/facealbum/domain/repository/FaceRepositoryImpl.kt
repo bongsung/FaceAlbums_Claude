@@ -1,14 +1,12 @@
-package com.facealbum.data.repository
+package com.facealbum.domain.repository
 
 import com.facealbum.common.Result
-import com.facealbum.data.local.dao.FaceDao
-import com.facealbum.data.local.entity.toDomain
-import com.facealbum.data.local.entity.toEntity
+import com.facealbum.domain.local.dao.FaceDao
+import com.facealbum.domain.local.entity.toDomain
+import com.facealbum.domain.local.entity.toEntity
 import com.facealbum.domain.model.Face
-import com.facealbum.domain.repository.FaceRepository
 import com.facealbum.ml.FaceEmbeddingGenerator
 import javax.inject.Inject
-import kotlin.math.sqrt
 
 class FaceRepositoryImpl @Inject constructor(
     private val faceDao: FaceDao,

@@ -1,4 +1,4 @@
-package com.facealbum.data.local.entity
+package com.facealbum.domain.local.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey

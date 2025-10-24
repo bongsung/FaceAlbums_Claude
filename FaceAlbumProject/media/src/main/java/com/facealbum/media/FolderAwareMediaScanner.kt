@@ -2,7 +2,6 @@ package com.facealbum.media
 
 import android.content.ContentUris
 import android.content.Context
-import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.util.Log

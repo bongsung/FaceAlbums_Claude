@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.facealbum.data"
+    namespace = "com.facealbum.domain"
     compileSdk = 34
 
     defaultConfig {

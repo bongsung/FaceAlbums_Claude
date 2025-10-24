@@ -1,9 +1,9 @@
-package com.facealbum.data.local
+package com.facealbum.domain.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.facealbum.data.local.dao.*
-import com.facealbum.data.local.entity.*
+import com.facealbum.domain.local.dao.*
+import com.facealbum.domain.local.entity.*
 
 @Database(
     entities = [

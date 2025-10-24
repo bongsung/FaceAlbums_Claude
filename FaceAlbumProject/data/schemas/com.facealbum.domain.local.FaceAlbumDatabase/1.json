@@ -1,0 +1,492 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "8cc7a7be81b82a7d40eccf0dd838ce0c",
+    "entities": [
+      {
+        "tableName": "persons",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `coverPhotoUri` TEXT, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "coverPhotoUri",
+            "columnName": "coverPhotoUri",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "photos",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `mediaStoreId` INTEGER NOT NULL, `uri` TEXT NOT NULL, `displayName` TEXT NOT NULL, `dateAdded` INTEGER NOT NULL, `dateModified` INTEGER NOT NULL, `size` INTEGER NOT NULL, `mimeType` TEXT NOT NULL, `contentHash` TEXT NOT NULL, `width` INTEGER NOT NULL, `height` INTEGER NOT NULL, `hasFaces` INTEGER NOT NULL, `processedAt` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mediaStoreId",
+            "columnName": "mediaStoreId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uri",
+            "columnName": "uri",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayName",
+            "columnName": "displayName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateAdded",
+            "columnName": "dateAdded",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateModified",
+            "columnName": "dateModified",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "size",
+            "columnName": "size",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mimeType",
+            "columnName": "mimeType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contentHash",
+            "columnName": "contentHash",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "width",
+            "columnName": "width",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "height",
+            "columnName": "height",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hasFaces",
+            "columnName": "hasFaces",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "processedAt",
+            "columnName": "processedAt",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_photos_mediaStoreId",
+            "unique": true,
+            "columnNames": [
+              "mediaStoreId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_photos_mediaStoreId` ON `${TABLE_NAME}` (`mediaStoreId`)"
+          },
+          {
+            "name": "index_photos_contentHash",
+            "unique": false,
+            "columnNames": [
+              "contentHash"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_photos_contentHash` ON `${TABLE_NAME}` (`contentHash`)"
+          },
+          {
+            "name": "index_photos_processedAt",
+            "unique": false,
+            "columnNames": [
+              "processedAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_photos_processedAt` ON `${TABLE_NAME}` (`processedAt`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "faces",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `photoId` INTEGER NOT NULL, `boundingBoxLeft` REAL NOT NULL, `boundingBoxTop` REAL NOT NULL, `boundingBoxRight` REAL NOT NULL, `boundingBoxBottom` REAL NOT NULL, `embedding` TEXT NOT NULL, `confidence` REAL NOT NULL, `detectedAt` INTEGER NOT NULL, FOREIGN KEY(`photoId`) REFERENCES `photos`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "photoId",
+            "columnName": "photoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "boundingBoxLeft",
+            "columnName": "boundingBoxLeft",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "boundingBoxTop",
+            "columnName": "boundingBoxTop",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "boundingBoxRight",
+            "columnName": "boundingBoxRight",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "boundingBoxBottom",
+            "columnName": "boundingBoxBottom",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "embedding",
+            "columnName": "embedding",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "confidence",
+            "columnName": "confidence",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "detectedAt",
+            "columnName": "detectedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_faces_photoId",
+            "unique": false,
+            "columnNames": [
+              "photoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_faces_photoId` ON `${TABLE_NAME}` (`photoId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "photos",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "photoId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "link_person_photo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`personId` INTEGER NOT NULL, `photoId` INTEGER NOT NULL, `linkedAt` INTEGER NOT NULL, PRIMARY KEY(`personId`, `photoId`), FOREIGN KEY(`personId`) REFERENCES `persons`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`photoId`) REFERENCES `photos`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "personId",
+            "columnName": "personId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "photoId",
+            "columnName": "photoId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "linkedAt",
+            "columnName": "linkedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "personId",
+            "photoId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_link_person_photo_personId",
+            "unique": false,
+            "columnNames": [
+              "personId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_link_person_photo_personId` ON `${TABLE_NAME}` (`personId`)"
+          },
+          {
+            "name": "index_link_person_photo_photoId",
+            "unique": false,
+            "columnNames": [
+              "photoId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_link_person_photo_photoId` ON `${TABLE_NAME}` (`photoId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "persons",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "personId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "photos",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "photoId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "pending_suggestions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `faceId` INTEGER NOT NULL, `suggestedPersonId` INTEGER, `similarityScore` REAL NOT NULL, `status` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, FOREIGN KEY(`faceId`) REFERENCES `faces`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`suggestedPersonId`) REFERENCES `persons`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "faceId",
+            "columnName": "faceId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "suggestedPersonId",
+            "columnName": "suggestedPersonId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "similarityScore",
+            "columnName": "similarityScore",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_pending_suggestions_faceId",
+            "unique": false,
+            "columnNames": [
+              "faceId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_pending_suggestions_faceId` ON `${TABLE_NAME}` (`faceId`)"
+          },
+          {
+            "name": "index_pending_suggestions_suggestedPersonId",
+            "unique": false,
+            "columnNames": [
+              "suggestedPersonId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_pending_suggestions_suggestedPersonId` ON `${TABLE_NAME}` (`suggestedPersonId`)"
+          },
+          {
+            "name": "index_pending_suggestions_status",
+            "unique": false,
+            "columnNames": [
+              "status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_pending_suggestions_status` ON `${TABLE_NAME}` (`status`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "faces",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "faceId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "persons",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "suggestedPersonId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "watch_folders",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `path` TEXT NOT NULL, `isEnabled` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "path",
+            "columnName": "path",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isEnabled",
+            "columnName": "isEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_watch_folders_path",
+            "unique": true,
+            "columnNames": [
+              "path"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_watch_folders_path` ON `${TABLE_NAME}` (`path`)"
+          }
+        ],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8cc7a7be81b82a7d40eccf0dd838ce0c')"
+    ]
+  }
+}

@@ -1,12 +1,10 @@
-package com.facealbum.data.repository
+package com.facealbum.domain.repository
 
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.facealbum.data.local.FaceAlbumDatabase
-import com.facealbum.data.local.entity.PersonEntity
-import com.facealbum.domain.repository.PersonRepository
+import com.facealbum.domain.local.FaceAlbumDatabase
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest

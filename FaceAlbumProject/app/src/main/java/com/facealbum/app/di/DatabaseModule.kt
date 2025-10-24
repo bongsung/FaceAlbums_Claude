@@ -3,8 +3,8 @@ package com.facealbum.app.di
 import android.content.Context
 import androidx.room.Room
 import com.facealbum.common.Constants
-import com.facealbum.data.local.FaceAlbumDatabase
-import com.facealbum.data.local.dao.*
+import com.facealbum.domain.local.FaceAlbumDatabase
+import com.facealbum.domain.local.dao.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
