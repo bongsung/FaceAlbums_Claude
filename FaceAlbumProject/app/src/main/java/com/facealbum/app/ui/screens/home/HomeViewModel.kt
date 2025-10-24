@@ -1,7 +1,11 @@
 package com.facealbum.app.ui.screens.home
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Constraints
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.facealbum.domain.model.Face
 import com.facealbum.domain.model.Person
 import com.facealbum.domain.model.WatchFolder
@@ -11,7 +15,10 @@ import com.facealbum.domain.repository.PhotoRepository
 import com.facealbum.domain.repository.SettingsRepository
 import com.facealbum.domain.repository.SuggestionRepository
 import com.facealbum.domain.usecase.*
+import com.facealbum.work.FolderScanWorker
+import com.facealbum.work.MediaSyncWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,7 +32,8 @@ class HomeViewModel @Inject constructor(
     private val faceRepository: FaceRepository,
     private val photoRepository: PhotoRepository,
     private val settingsRepository: SettingsRepository,
-    private val suggestionRepository: SuggestionRepository
+    private val suggestionRepository: SuggestionRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     // UI State
@@ -105,7 +113,7 @@ class HomeViewModel @Inject constructor(
                     // Start scanning the folder immediately
                     val folderId = result.getOrNull()
                     if (folderId != null) {
-                        scanFolder(folderId)
+                        scanFolder(folderId, folderPath)
                     }
                 }
             } catch (e: Exception) {
@@ -125,12 +133,39 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun scanFolder(folderId: Long) {
+    fun scanFolder(folderId: Long, folderPath: String? = null) {
         viewModelScope.launch {
             _isScanning.value = true
             try {
-                // Trigger folder scanning worker
-                // This would queue a WorkManager job to scan the folder
+                // FolderScanWorker 실행
+                FolderScanWorker.enqueue(
+                    context = context,
+                    folderId = folderId,
+                    folderPath = folderPath
+                )
+            } finally {
+                _isScanning.value = false
+            }
+        }
+    }
+
+    /**
+     * MediaStore 전체 스캔 실행
+     */
+    fun scanAllPhotos() {
+        viewModelScope.launch {
+            _isScanning.value = true
+            try {
+                // MediaSyncWorker 실행하여 전체 스캔
+                val workRequest = OneTimeWorkRequestBuilder<MediaSyncWorker>()
+                    .setConstraints(
+                        Constraints.Builder()
+                            .setRequiresBatteryNotLow(false)  // 즉시 실행
+                            .build()
+                    )
+                    .build()
+
+                WorkManager.getInstance(context).enqueue(workRequest)
             } finally {
                 _isScanning.value = false
             }

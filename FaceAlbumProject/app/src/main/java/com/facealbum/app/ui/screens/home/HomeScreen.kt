@@ -1,6 +1,9 @@
 package com.facealbum.app.ui.screens.home
 
 import android.content.Intent
+import android.net.Uri
+import android.os.Environment
+import android.provider.DocumentsContract
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -56,9 +59,14 @@ fun HomeScreen(
                     Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             context.contentResolver.takePersistableUriPermission(uri, takeFlags)
 
-            // Convert URI to path and add to watch folders
-            val path = uri.path ?: return@let
-            viewModel.addWatchFolder(path)
+            // Convert URI to actual file path
+            val path = convertUriToPath(uri)
+            if (path != null) {
+                viewModel.addWatchFolder(path)
+            } else {
+                // Fallback: MediaStore 전체 스캔 트리거
+                viewModel.scanAllPhotos()
+            }
         }
     }
 
@@ -87,11 +95,24 @@ fun HomeScreen(
         },
         floatingActionButton = {
             if (selectedTab == 0) {
-                FloatingActionButton(
-                    onClick = { folderPickerLauncher.launch(null) },
-                    modifier = Modifier.padding(bottom = 56.dp)
+                Column(
+                    modifier = Modifier.padding(bottom = 56.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Icon(Icons.Default.CreateNewFolder, contentDescription = "Select Folder")
+                    // 전체 스캔 버튼 (새로 추가!)
+                    FloatingActionButton(
+                        onClick = { viewModel.scanAllPhotos() },
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    ) {
+                        Icon(Icons.Default.Refresh, contentDescription = "Scan All Photos")
+                    }
+
+                    // 폴더 추가 버튼
+                    FloatingActionButton(
+                        onClick = { folderPickerLauncher.launch(null) }
+                    ) {
+                        Icon(Icons.Default.CreateNewFolder, contentDescription = "Select Folder")
+                    }
                 }
             }
         },
@@ -163,6 +184,38 @@ fun HomeScreen(
     }
 }
 
+/**
+ * DocumentsContract URI를 실제 파일 경로로 변환
+ */
+private fun convertUriToPath(uri: Uri): String? {
+    return try {
+        if (DocumentsContract.isTreeUri(uri)) {
+            val docId = DocumentsContract.getTreeDocumentId(uri)
+
+            // primary:DCIM/Camera -> /storage/emulated/0/DCIM/Camera
+            when {
+                docId.startsWith("primary:") -> {
+                    val path = docId.substring("primary:".length)
+                    "${Environment.getExternalStorageDirectory()}/$path"
+                }
+                // SD 카드 등 외부 저장소
+                docId.contains(":") -> {
+                    val split = docId.split(":")
+                    if (split.size >= 2) {
+                        "/storage/${split[0]}/${split[1]}"
+                    } else null
+                }
+                else -> null
+            }
+        } else {
+            null
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
 @Composable
 fun FoldersTab(
     watchFolders: List<WatchFolder>,
@@ -192,6 +245,12 @@ fun FoldersTab(
                     "Tap + to select folders to watch",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "Or tap 🔄 to scan all photos",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

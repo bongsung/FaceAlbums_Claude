@@ -28,62 +28,73 @@ class FaceDetectionWorker @AssistedInject constructor(
     private val faceDetector: FaceDetector,
     private val embeddingGenerator: FaceEmbeddingGenerator
 ) : CoroutineWorker(context, params) {
-    
+
     override suspend fun doWork(): Result {
-        val mediaStoreId = inputData.getLong(KEY_MEDIA_STORE_ID, -1L)
-        
-        if (mediaStoreId == -1L) {
-            Log.e(TAG, "Invalid media store ID")
+        // KEY 이름 변경: PHOTO_ID (DB ID)
+        val photoId = inputData.getLong(KEY_PHOTO_ID, -1L)
+
+        if (photoId == -1L) {
+            Log.e(TAG, "Invalid photo ID")
             return Result.failure()
         }
-        
-        Log.d(TAG, "Starting face detection for media ID: $mediaStoreId")
-        
+
+        Log.d(TAG, "Starting face detection for photo ID: $photoId")
+
         return try {
             // Get photo from repository
-            val photoResult = photoRepository.getPhotoById(mediaStoreId)
+            val photoResult = photoRepository.getPhotoById(photoId)
             if (!photoResult.isSuccess) {
-                Log.e(TAG, "Photo not found: $mediaStoreId")
+                Log.e(TAG, "Photo not found: $photoId")
                 return Result.failure()
             }
-            
+
             val photo = photoResult.getOrNull()!!
-            
+            Log.d(TAG, "Processing photo: ${photo.displayName}")
+
             // Load bitmap
             val bitmap = applicationContext.contentResolver.openInputStream(Uri.parse(photo.uri))?.use {
                 BitmapFactory.decodeStream(it)
             }
-            
+
             if (bitmap == null) {
                 Log.e(TAG, "Failed to load bitmap for: ${photo.displayName}")
                 return Result.failure()
             }
-            
+
+            Log.d(TAG, "Bitmap loaded: ${bitmap.width}x${bitmap.height}")
+
             // Detect faces
             val detectionResult = faceDetector.detectFaces(bitmap)
             if (!detectionResult.isSuccess) {
                 Log.e(TAG, "Face detection failed", detectionResult.exceptionOrNull())
                 return Result.retry()
             }
-            
+
             val detectedFaces = detectionResult.getOrNull()!!
             Log.d(TAG, "Detected ${detectedFaces.size} faces in ${photo.displayName}")
-            
+
             if (detectedFaces.isEmpty()) {
                 // Mark as processed even if no faces found
                 photoRepository.markPhotoAsProcessed(photo.id)
+                Log.d(TAG, "No faces found, marked as processed")
                 return Result.success()
             }
-            
+
             // Generate embeddings for each face
             val faces = mutableListOf<Face>()
-            for (detectedFace in detectedFaces) {
-                val faceBitmap = detectedFace.faceBitmap ?: continue
-                
+            for ((index, detectedFace) in detectedFaces.withIndex()) {
+                val faceBitmap = detectedFace.faceBitmap
+
+                if (faceBitmap == null) {
+                    Log.w(TAG, "Face $index has no bitmap, skipping")
+                    continue
+                }
+
+                Log.d(TAG, "Generating embedding for face $index")
                 val embeddingResult = embeddingGenerator.generateEmbedding(faceBitmap)
                 if (embeddingResult.isSuccess) {
                     val embedding = embeddingResult.getOrNull()!!
-                    
+
                     faces.add(
                         Face(
                             photoId = photo.id,
@@ -92,20 +103,30 @@ class FaceDetectionWorker @AssistedInject constructor(
                             confidence = detectedFace.confidence
                         )
                     )
+                    Log.d(TAG, "Embedding generated for face $index")
+                } else {
+                    Log.e(TAG, "Failed to generate embedding for face $index",
+                        embeddingResult.exceptionOrNull())
                 }
             }
-            
+
             // Save faces to database
             if (faces.isNotEmpty()) {
-                faceRepository.insertFaces(faces)
-                
-                // Mark photo as having faces
-                photoRepository.markPhotoAsProcessed(photo.id)
-                
-                // Queue clustering/suggestion generation
-                ClusteringWorker.enqueue(applicationContext)
+                val insertResult = faceRepository.insertFaces(faces)
+                if (insertResult.isSuccess) {
+                    Log.d(TAG, "Saved ${faces.size} faces to database")
+
+                    // Mark photo as having faces
+                    photoRepository.markPhotoAsProcessed(photo.id)
+
+                    // Queue clustering/suggestion generation
+                    ClusteringWorker.enqueue(applicationContext)
+                    Log.d(TAG, "Queued clustering worker")
+                } else {
+                    Log.e(TAG, "Failed to save faces", insertResult.exceptionOrNull())
+                }
             }
-            
+
             Log.d(TAG, "Face detection completed for ${photo.displayName}: ${faces.size} faces saved")
             Result.success()
         } catch (e: Exception) {
@@ -117,23 +138,26 @@ class FaceDetectionWorker @AssistedInject constructor(
             }
         }
     }
-    
+
     companion object {
         private const val TAG = "FaceDetectionWorker"
         private const val MAX_RETRY_ATTEMPTS = 3
-        const val KEY_MEDIA_STORE_ID = "media_store_id"
-        
+        const val KEY_PHOTO_ID = "photo_id"  // ← 이름 변경!
+
         /**
          * Enqueue face detection work for a specific photo
+         * @param photoId Database photo ID (not mediaStoreId!)
          */
-        fun enqueue(context: Context, mediaStoreId: Long) {
+        fun enqueue(context: Context, photoId: Long) {
+            Log.d(TAG, "Enqueueing face detection for photo ID: $photoId")
+
             val workRequest = OneTimeWorkRequestBuilder<FaceDetectionWorker>()
                 .setInputData(
-                    workDataOf(KEY_MEDIA_STORE_ID to mediaStoreId)
+                    workDataOf(KEY_PHOTO_ID to photoId)
                 )
                 .setConstraints(
                     Constraints.Builder()
-                        .setRequiresBatteryNotLow(true)
+                        .setRequiresBatteryNotLow(false)  // 즉시 실행
                         .build()
                 )
                 .addTag(Constants.WORK_TAG_FACE_DETECTION)
@@ -143,7 +167,7 @@ class FaceDetectionWorker @AssistedInject constructor(
                     TimeUnit.SECONDS
                 )
                 .build()
-            
+
             WorkManager.getInstance(context).enqueue(workRequest)
         }
     }

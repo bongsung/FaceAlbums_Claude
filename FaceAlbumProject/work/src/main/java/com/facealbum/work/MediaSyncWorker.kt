@@ -20,13 +20,13 @@ class MediaSyncWorker @AssistedInject constructor(
     private val mediaStoreScanner: MediaStoreScanner,
     private val photoRepository: PhotoRepository
 ) : CoroutineWorker(context, params) {
-    
+
     override suspend fun doWork(): Result {
         Log.d(TAG, "Starting media sync")
-        
+
         return try {
             val mediaStoreId = inputData.getLong(KEY_MEDIA_STORE_ID, -1L)
-            
+
             if (mediaStoreId != -1L) {
                 // Sync specific item
                 syncSingleItem(mediaStoreId)
@@ -34,7 +34,7 @@ class MediaSyncWorker @AssistedInject constructor(
                 // Full scan
                 syncAllItems()
             }
-            
+
             Log.d(TAG, "Media sync completed successfully")
             Result.success()
         } catch (e: Exception) {
@@ -46,17 +46,17 @@ class MediaSyncWorker @AssistedInject constructor(
             }
         }
     }
-    
+
     private suspend fun syncSingleItem(mediaStoreId: Long) {
         val photo = mediaStoreScanner.getPhotoDetails(mediaStoreId)
-        
+
         if (photo != null) {
             // Check if photo already exists (by MediaStore ID or content hash)
             val existingPhoto = photoRepository.getPhotoByMediaStoreIdOrHash(
                 mediaStoreId = photo.mediaStoreId,
                 contentHash = photo.contentHash
             )
-            
+
             when {
                 existingPhoto.isSuccess && existingPhoto.getOrNull() != null -> {
                     // Photo exists, update if needed
@@ -68,27 +68,31 @@ class MediaSyncWorker @AssistedInject constructor(
                 }
                 else -> {
                     // New photo, insert
-                    photoRepository.upsertPhoto(photo)
-                    Log.d(TAG, "Inserted new photo: ${photo.displayName}")
-                    
-                    // Queue face detection for this photo
-                    FaceDetectionWorker.enqueue(applicationContext, photo.mediaStoreId)
+                    val insertResult = photoRepository.upsertPhoto(photo)
+                    if (insertResult.isSuccess) {
+                        val photoId = insertResult.getOrNull()!!
+                        Log.d(TAG, "Inserted new photo: ${photo.displayName}, ID: $photoId")
+
+                        // Queue face detection for this photo - 중요!
+                        FaceDetectionWorker.enqueue(applicationContext, photoId)
+                        Log.d(TAG, "Queued face detection for photo ID: $photoId")
+                    }
                 }
             }
         }
     }
-    
+
     private suspend fun syncAllItems() {
         val photos = mediaStoreScanner.scanAllImages()
         var newCount = 0
         var updatedCount = 0
-        
+
         for (photo in photos) {
             val existingPhoto = photoRepository.getPhotoByMediaStoreIdOrHash(
                 mediaStoreId = photo.mediaStoreId,
                 contentHash = photo.contentHash
             )
-            
+
             when {
                 existingPhoto.isSuccess && existingPhoto.getOrNull() != null -> {
                     val existing = existingPhoto.getOrNull()!!
@@ -98,18 +102,23 @@ class MediaSyncWorker @AssistedInject constructor(
                     }
                 }
                 else -> {
-                    photoRepository.upsertPhoto(photo)
-                    newCount++
-                    
-                    // Queue face detection
-                    FaceDetectionWorker.enqueue(applicationContext, photo.mediaStoreId)
+                    val insertResult = photoRepository.upsertPhoto(photo)
+                    if (insertResult.isSuccess) {
+                        val photoId = insertResult.getOrNull()!!
+                        newCount++
+
+                        // Queue face detection - 여기가 핵심!
+                        FaceDetectionWorker.enqueue(applicationContext, photoId)
+                        Log.d(TAG, "Queued face detection for new photo: ${photo.displayName} (ID: $photoId)")
+                    }
                 }
             }
         }
-        
+
         Log.d(TAG, "Full sync: $newCount new, $updatedCount updated")
+        Log.d(TAG, "Queued $newCount face detection jobs")
     }
-    
+
     companion object {
         private const val TAG = "MediaSyncWorker"
         private const val MAX_RETRY_ATTEMPTS = 3
