@@ -12,6 +12,7 @@ datastore = "1.1.1"
 mlkit-face = "16.1.7"
 tflite = "2.14.0"
 tflite-support = "0.4.4"
+coil = "2.5.0"
 core-ktx = "1.13.1"
 lifecycle = "2.8.6"
 junit = "4.13.2"
@@ -74,6 +75,10 @@ mlkit-face-detection = { module = "com.google.mlkit:face-detection", version.ref
 
 tensorflow-lite = { module = "org.tensorflow:tensorflow-lite", version.ref = "tflite" }
 tensorflow-lite-support = { module = "org.tensorflow:tensorflow-lite-support", version.ref = "tflite-support" }
+
+# 이미지 로딩
+compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }

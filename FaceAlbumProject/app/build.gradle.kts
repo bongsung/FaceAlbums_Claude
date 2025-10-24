@@ -97,6 +97,10 @@ dependencies {
     implementation(libs.work.runtime.ktx)
     implementation(libs.androidx.hilt.work)
 
+    // 이미지 로딩 (AsyncImage 사용하기 위해 필수)
+    implementation(libs.coil.compose)
+    implementation(libs.compose.material.icons.extended)
+
     // Testing
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

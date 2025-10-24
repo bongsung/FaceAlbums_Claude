@@ -87,39 +87,54 @@ class HomeViewModel @Inject constructor(
 
     private fun observeUnassignedFaces() {
         viewModelScope.launch {
-            faceRepository.getUnassignedFaces().collect { result ->
-                if (result.isSuccess) {
-                    _unassignedFaces.value = result.getOrNull() ?: emptyList()
+            try {
+                val result = faceRepository.getUnassignedFaces()
+                result.getOrNull()?.let { faces ->
+                    _unassignedFaces.value = faces
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
 
     fun addWatchFolder(folderPath: String) {
         viewModelScope.launch {
-            val result = settingsRepository.addWatchFolder(folderPath)
-            if (result.isSuccess) {
-                // Start scanning the folder immediately
-                val folderId = result.getOrNull()
-                if (folderId != null) {
-                    scanFolder(folderId)
+            try {
+                val result = settingsRepository.addWatchFolder(folderPath)
+                if (result.isSuccess) {
+                    // Start scanning the folder immediately
+                    val folderId = result.getOrNull()
+                    if (folderId != null) {
+                        scanFolder(folderId)
+                    }
                 }
+            } catch (e: Exception) {
+                // Handle error
+                e.printStackTrace()
             }
         }
     }
 
     fun removeWatchFolder(folderId: Long) {
         viewModelScope.launch {
-            settingsRepository.removeWatchFolder(folderId)
+            try {
+                settingsRepository.removeWatchFolder(folderId)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
     fun scanFolder(folderId: Long) {
         viewModelScope.launch {
             _isScanning.value = true
-            // Trigger folder scanning worker
-            // This would queue a WorkManager job to scan the folder
-            _isScanning.value = false
+            try {
+                // Trigger folder scanning worker
+                // This would queue a WorkManager job to scan the folder
+            } finally {
+                _isScanning.value = false
+            }
         }
     }
 
@@ -133,39 +148,44 @@ class HomeViewModel @Inject constructor(
 
     fun addFaceAsPerson(face: Face, name: String) {
         viewModelScope.launch {
-            // Check if person exists
-            val existingPersons = personRepository.searchPersons(name)
+            try {
+                // Check if person exists
+                val existingPersons = personRepository.searchPersons(name)
 
-            val personId = if (existingPersons.isSuccess &&
-                existingPersons.getOrNull()?.isNotEmpty() == true) {
-                // Add to existing person
-                existingPersons.getOrNull()?.first()?.id
-            } else {
-                // Create new person
-                val result = createPersonUseCase(name)
-                result.getOrNull()?.id
-            }
+                val personId = if (existingPersons.isSuccess &&
+                    existingPersons.getOrNull()?.isNotEmpty() == true) {
+                    // Add to existing person
+                    existingPersons.getOrNull()?.first()?.id
+                } else {
+                    // Create new person
+                    val result = createPersonUseCase(name)
+                    result.getOrNull()?.id
+                }
 
-            personId?.let { id ->
-                // Link the face's photo to this person
-                val photoResult = photoRepository.getPhotoById(face.photoId)
-                if (photoResult.isSuccess) {
-                    personRepository.linkPhotoToPerson(id, face.photoId)
+                personId?.let { id ->
+                    // Link the face's photo to this person
+                    val photoResult = photoRepository.getPhotoById(face.photoId)
+                    if (photoResult.isSuccess) {
+                        personRepository.linkPhotoToPerson(id, face.photoId)
 
-                    // Create a suggestion and auto-accept it
-                    val suggestionResult = suggestionRepository.createSuggestion(
-                        faceId = face.id,
-                        suggestedPersonId = id,
-                        similarityScore = 1.0f
-                    )
+                        // Create a suggestion and auto-accept it
+                        val suggestionResult = suggestionRepository.createSuggestion(
+                            faceId = face.id,
+                            suggestedPersonId = id,
+                            similarityScore = 1.0f
+                        )
 
-                    suggestionResult.getOrNull()?.let { suggestionId ->
-                        suggestionRepository.acceptSuggestion(suggestionId)
+                        suggestionResult.getOrNull()?.let { suggestionId ->
+                            suggestionRepository.acceptSuggestion(suggestionId)
+                        }
                     }
                 }
-            }
 
-            _faceToAdd.value = null
+                _faceToAdd.value = null
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _faceToAdd.value = null
+            }
         }
     }
 
